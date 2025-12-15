@@ -7,7 +7,7 @@ import AdminLayout from "@/layout/AdminLayout";
 import ClientLayout from "@/layout/ClientLayout";
 
 import { adminRoutes } from "./admin.routes";
-import { clientRoutes } from "./client.routes";
+import { clientRoutes } from "./student.routes";
 
 export default function AppRoutes() {
     const routes = useRoutes([
