@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Activity, TrendingUp } from 'lucide-react';
-import type { BayesianParameter } from '../../types';
+import type { BayesianParameter } from '@/types/index';
 
 interface BayesianAnalysisProps {
     parameters: BayesianParameter;

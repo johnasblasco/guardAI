@@ -4,7 +4,7 @@ import ProtectedRoute from "./protected";
 
 import MainLayout from "@/layout/MainLayout";
 import AdminLayout from "@/layout/AdminLayout";
-import ClientLayout from "@/layout/ClientLayout";
+import StudentLayout from "@/layout/StudentLayout";
 
 import { adminRoutes } from "./admin.routes";
 import { clientRoutes } from "./student.routes";
@@ -27,8 +27,8 @@ export default function AppRoutes() {
                     children: adminRoutes,
                 },
                 {
-                    path: "client",
-                    element: <ClientLayout />,
+                    path: "student",
+                    element: <StudentLayout />,
                     children: clientRoutes,
                 },
             ],

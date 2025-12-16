@@ -12,10 +12,10 @@ import {
     MOCK_BAYESIAN,
     MOCK_ACTIONS,
     MOCK_REPORTS,
-} from '../../utils/mockData';
-import type { HealthReport, SuggestedAction } from '../../types';
+} from '@/utils/MockData';
+import type { HealthReport, SuggestedAction } from '@/types/index';
 
-export function AdminDashboard() {
+export default function AdminDashboard() {
     const [reports, setReports] = useState(MOCK_REPORTS);
     const [actions, setActions] = useState(MOCK_ACTIONS);
     const predictionData = generatePredictionData();

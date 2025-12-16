@@ -1,5 +1,5 @@
 import { FileText, Calendar, MapPin, AlertCircle, CheckCircle, Clock } from 'lucide-react';
-import type { HealthReport } from '../../types';
+import type { HealthReport } from '@/types/index';
 
 interface MyReportsProps {
     reports: HealthReport[];

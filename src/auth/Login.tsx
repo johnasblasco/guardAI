@@ -1,26 +1,12 @@
 import { useState } from 'react';
 import { Heart, Shield, UserCircle, Activity } from 'lucide-react';
-import { StudentReportForm } from './components/student/StudentReportForm';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import type { UserRole, HealthReport } from './types';
-import { MOCK_REPORTS } from './utils/mockData';
+import StudentDashboard from '@/features/student/pages/StudentDashboard';
+import AdminDashboard from '@/features/admin/pages/AdminDashboard';
+import type { UserRole, HealthReport } from '@/types/index';
+import { MOCK_REPORTS } from '@/utils/MockData';
 
 function Login() {
     const [userRole, setUserRole] = useState<UserRole | null>(null);
-    const [reports, setReports] = useState(MOCK_REPORTS);
-
-    const handleSubmitReport = (report: Omit<HealthReport, 'id' | 'userId' | 'timestamp' | 'status'>) => {
-        const newReport: HealthReport = {
-            ...report,
-            id: `rep-${Date.now()}`,
-            userId: `student-${Date.now()}`,
-            timestamp: new Date().toISOString(),
-            status: 'pending',
-        };
-
-        setReports(prev => [newReport, ...prev]);
-        console.log('New report submitted:', newReport);
-    };
 
     // Landing page for role selection
     if (!userRole) {
@@ -176,7 +162,8 @@ function Login() {
             {/* Content */}
             {userRole === 'student' ? (
                 <div className="py-8">
-                    <StudentReportForm onSubmitReport={handleSubmitReport} />
+                    {/* <StudentReportForm onSubmitReport={handleSubmitReport} /> */}
+                    <StudentDashboard />
                 </div>
             ) : (
                 <AdminDashboard />

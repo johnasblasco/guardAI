@@ -1,142 +1,158 @@
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Brain } from 'lucide-react';
-import type { PredictionData } from '../../types';
+import { FileText, Clock, CheckCircle, AlertCircle, MapPin, Calendar } from 'lucide-react';
+import type { HealthReport } from '@/types/index';
 
-interface PredictionChartProps {
-    data: PredictionData[];
+interface ReportsListProps {
+    reports: HealthReport[];
+    onUpdateStatus?: (reportId: string, status: HealthReport['status']) => void;
 }
 
-export function PredictionChart({ data }: PredictionChartProps) {
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return `${date.getMonth() + 1}/${date.getDate()}`;
+export function ReportsList({ reports, onUpdateStatus }: ReportsListProps) {
+    const getSeverityColor = (severity: HealthReport['severity']) => {
+        switch (severity) {
+            case 'severe':
+                return 'bg-red-100 text-red-700 border-red-200';
+            case 'moderate':
+                return 'bg-orange-100 text-orange-700 border-orange-200';
+            case 'mild':
+                return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        }
     };
 
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-gray-200">
-                    <p className="text-sm text-gray-900 mb-2">{new Date(label).toLocaleDateString()}</p>
-                    {payload.map((entry: any, index: number) => (
-                        <div key={index} className="flex items-center gap-2 text-sm">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                            <span className="text-gray-600">{entry.name}:</span>
-                            <span className="text-gray-900">{entry.value}</span>
-                        </div>
-                    ))}
-                </div>
-            );
+    const getStatusConfig = (status: HealthReport['status']) => {
+        switch (status) {
+            case 'resolved':
+                return { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', label: 'Resolved' };
+            case 'reviewed':
+                return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50', label: 'Reviewed' };
+            case 'pending':
+                return { icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50', label: 'Pending' };
         }
-        return null;
     };
+
+    const sortedReports = [...reports].sort((a, b) => {
+        const statusOrder = { pending: 0, reviewed: 1, resolved: 2 };
+        if (a.status !== b.status) {
+            return statusOrder[a.status] - statusOrder[b.status];
+        }
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
 
     return (
         <div className="bg-white rounded-xl shadow-sm border-2 border-gray-100 p-6">
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
-                        <Brain className="w-5 h-5 text-blue-600" />
-                        <h2 className="text-xl text-gray-900">AI-Powered Predictions</h2>
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        <h2 className="text-xl text-gray-900">Recent Health Reports</h2>
                     </div>
-                    <p className="text-sm text-gray-600">Time series forecast using LSTM neural network</p>
+                    <p className="text-sm text-gray-600">Latest submissions from students</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-purple-50 rounded-lg">
-                    <TrendingUp className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm text-purple-900">TensorFlow.js</span>
+                <div className="text-sm text-gray-600">
+                    Total: <span className="text-gray-900">{reports.length}</span>
                 </div>
             </div>
 
-            <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data}>
-                        <defs>
-                            <linearGradient id="colorPredicted" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                            </linearGradient>
-                            <linearGradient id="colorConfirmed" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis
-                            dataKey="date"
-                            tickFormatter={formatDate}
-                            stroke="#6b7280"
-                            style={{ fontSize: '12px' }}
-                        />
-                        <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend
-                            wrapperStyle={{ paddingTop: '20px' }}
-                            iconType="circle"
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="confirmed"
-                            stroke="#10b981"
-                            strokeWidth={3}
-                            fill="url(#colorConfirmed)"
-                            name="Confirmed Cases"
-                            connectNulls
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="predicted"
-                            stroke="#3b82f6"
-                            strokeWidth={2}
-                            strokeDasharray="5 5"
-                            fill="url(#colorPredicted)"
-                            name="Predicted Cases"
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="lowerBound"
-                            stroke="#93c5fd"
-                            strokeWidth={1}
-                            fill="none"
-                            name="Lower Bound"
-                            strokeDasharray="2 2"
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="upperBound"
-                            stroke="#93c5fd"
-                            strokeWidth={1}
-                            fill="none"
-                            name="Upper Bound"
-                            strokeDasharray="2 2"
-                        />
-                    </AreaChart>
-                </ResponsiveContainer>
+            <div className="space-y-3">
+                {sortedReports.map((report) => {
+                    const status = getStatusConfig(report.status);
+                    const StatusIcon = status.icon;
+
+                    return (
+                        <div
+                            key={report.id}
+                            className="p-4 border-2 border-gray-200 rounded-lg hover:shadow-md transition-all"
+                        >
+                            <div className="flex items-start gap-4">
+                                {/* Status Indicator */}
+                                <div className={`p-2 ${status.bg} rounded-lg`}>
+                                    <StatusIcon className={`w-5 h-5 ${status.color}`} />
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-4 mb-3">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-gray-900">{report.userGradeLevel}</span>
+                                                {report.confirmedDisease && (
+                                                    <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded border border-red-200">
+                                                        Confirmed: {report.diseaseName}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                <div className="flex items-center gap-1">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(report.dateOfOnset).toLocaleDateString()}
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <MapPin className="w-3 h-3" />
+                                                    {report.location.building} - {report.location.room}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className={`px-2 py-1 rounded border capitalize text-xs ${getSeverityColor(report.severity)}`}>
+                                            {report.severity}
+                                        </div>
+                                    </div>
+
+                                    {/* Symptoms */}
+                                    <div className="mb-3">
+                                        <div className="text-xs text-gray-500 mb-1">Symptoms:</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {report.symptoms.map((symptom) => (
+                                                <span
+                                                    key={symptom}
+                                                    className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded"
+                                                >
+                                                    {symptom.replace('-', ' ')}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                                        <span className="text-xs text-gray-500">
+                                            Reported: {new Date(report.timestamp).toLocaleString()}
+                                        </span>
+
+                                        {/* Action Buttons */}
+                                        {onUpdateStatus && report.status !== 'resolved' && (
+                                            <div className="flex gap-2">
+                                                {report.status === 'pending' && (
+                                                    <button
+                                                        onClick={() => onUpdateStatus(report.id, 'reviewed')}
+                                                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                                                    >
+                                                        Mark as Reviewed
+                                                    </button>
+                                                )}
+                                                {report.status === 'reviewed' && (
+                                                    <button
+                                                        onClick={() => onUpdateStatus(report.id, 'resolved')}
+                                                        className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                                                    >
+                                                        Resolve
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="text-sm text-blue-900 mb-1">Peak Prediction</div>
-                    <div className="text-2xl text-blue-600">
-                        {Math.max(...data.map(d => d.predicted))} cases
-                    </div>
-                    <div className="text-xs text-blue-700 mt-1">
-                        Expected in {data.findIndex(d => d.predicted === Math.max(...data.map(d => d.predicted)))} days
-                    </div>
+            {reports.length === 0 && (
+                <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">No health reports submitted yet</p>
                 </div>
-
-                <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="text-sm text-green-900 mb-1">Current Confirmed</div>
-                    <div className="text-2xl text-green-600">
-                        {data.find(d => new Date(d.date).toDateString() === new Date().toDateString())?.confirmed || 0} cases
-                    </div>
-                    <div className="text-xs text-green-700 mt-1">As of today</div>
-                </div>
-
-                <div className="p-4 bg-purple-50 rounded-lg">
-                    <div className="text-sm text-purple-900 mb-1">Forecast Horizon</div>
-                    <div className="text-2xl text-purple-600">14 days</div>
-                    <div className="text-xs text-purple-700 mt-1">Updated hourly</div>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { MapPin, AlertTriangle, TrendingUp } from 'lucide-react';
-import type { HotspotData } from '../../types';
+import type { HotspotData } from '@/types/index';
 
 interface HotspotMapProps {
     hotspots: HotspotData[];

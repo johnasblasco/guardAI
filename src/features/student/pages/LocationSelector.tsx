@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Building2, DoorOpen, MapPin } from 'lucide-react';
-import { LOCATIONS } from '../../utils/mockData';
+import { LOCATIONS } from '@/utils/MockData';
 
 interface LocationSelectorProps {
     selectedLocation: {
@@ -41,14 +41,14 @@ export function LocationSelector({ selectedLocation, onLocationChange }: Locatio
                 </div>
                 <div className={`w-8 h-0.5 ${selectedLocation.building ? 'bg-green-500' : 'bg-gray-300'}`} />
                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${step === 'room' ? 'bg-blue-600 text-white' :
-                        selectedLocation.room ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+                    selectedLocation.room ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
                     }`}>
                     <DoorOpen className="w-4 h-4" />
                     <span className="text-sm">Room</span>
                 </div>
                 <div className={`w-8 h-0.5 ${selectedLocation.room ? 'bg-green-500' : 'bg-gray-300'}`} />
                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${step === 'seat' ? 'bg-blue-600 text-white' :
-                        selectedLocation.seatNumber ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+                    selectedLocation.seatNumber ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
                     }`}>
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm">Seat</span>

@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Send, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Send, Calendar, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { SymptomSelector } from './SymptomSelector';
 import { LocationSelector } from './LocationSelector';
-import type { SeverityLevel, HealthReport } from '../../types';
+import type { SeverityLevel, HealthReport } from '@/types/index';
 
 interface StudentReportFormProps {
     onSubmitReport: (report: Omit<HealthReport, 'id' | 'userId' | 'timestamp' | 'status'>) => void;
+    onClose?: () => void; // Optional: if parent wants to close the form
 }
 
-export function StudentReportForm({ onSubmitReport }: StudentReportFormProps) {
+export function StudentReportForm({ onSubmitReport, onClose }: StudentReportFormProps) {
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
 
@@ -48,6 +49,28 @@ export function StudentReportForm({ onSubmitReport }: StudentReportFormProps) {
 
         onSubmitReport(report);
         setSubmitted(true);
+
+        // Auto-reset form after 3 seconds (optional)
+        setTimeout(() => {
+            resetForm();
+            if (onClose) {
+                onClose(); // Close the form if parent provided onClose
+            }
+        }, 3000);
+    };
+
+    const resetForm = () => {
+        setSubmitted(false);
+        setStep(1);
+        setFormData({
+            symptoms: [],
+            severity: 'mild',
+            dateOfOnset: new Date().toISOString().split('T')[0],
+            confirmedDisease: false,
+            diseaseName: '',
+            gradeLevel: '',
+            location: { building: '', room: '', seatNumber: '' },
+        });
     };
 
     const canProceedToStep2 = formData.symptoms.length > 0;
@@ -65,24 +88,22 @@ export function StudentReportForm({ onSubmitReport }: StudentReportFormProps) {
                     <p className="text-gray-600">
                         Thank you for reporting your symptoms. The health office has been notified and will review your report shortly.
                     </p>
-                    <button
-                        onClick={() => {
-                            setSubmitted(false);
-                            setStep(1);
-                            setFormData({
-                                symptoms: [],
-                                severity: 'mild',
-                                dateOfOnset: new Date().toISOString().split('T')[0],
-                                confirmedDisease: false,
-                                diseaseName: '',
-                                gradeLevel: '',
-                                location: { building: '', room: '', seatNumber: '' },
-                            });
-                        }}
-                        className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Submit Another Report
-                    </button>
+                    <div className="flex gap-3 justify-center mt-6">
+                        <button
+                            onClick={resetForm}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Submit Another Report
+                        </button>
+                        {onClose && (
+                            <button
+                                onClick={onClose}
+                                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Back to Dashboard
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -90,6 +111,19 @@ export function StudentReportForm({ onSubmitReport }: StudentReportFormProps) {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
+            {/* Close button at top */}
+            {onClose && (
+                <div className="flex justify-end mb-4">
+                    <button
+                        onClick={onClose}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                    >
+                        <X className="w-4 h-4" />
+                        Close
+                    </button>
+                </div>
+            )}
+
             {/* Progress Steps */}
             <div className="mb-8">
                 <div className="flex items-center justify-between max-w-2xl mx-auto">
@@ -182,13 +216,13 @@ export function StudentReportForm({ onSubmitReport }: StudentReportFormProps) {
                                             key={level}
                                             onClick={() => setFormData(prev => ({ ...prev, severity: level }))}
                                             className={`p-4 rounded-lg border-2 transition-all ${formData.severity === level
-                                                    ? 'border-blue-600 bg-blue-50 text-blue-900'
-                                                    : 'border-gray-200 hover:border-gray-300'
+                                                ? 'border-blue-600 bg-blue-50 text-blue-900'
+                                                : 'border-gray-200 hover:border-gray-300'
                                                 }`}
                                         >
                                             <div className="text-center">
                                                 <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${level === 'mild' ? 'bg-yellow-400' :
-                                                        level === 'moderate' ? 'bg-orange-400' : 'bg-red-500'
+                                                    level === 'moderate' ? 'bg-orange-400' : 'bg-red-500'
                                                     }`} />
                                                 <span className="capitalize">{level}</span>
                                             </div>

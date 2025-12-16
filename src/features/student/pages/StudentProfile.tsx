@@ -1,4 +1,4 @@
-import { User, Mail, GraduationCap, MapPin, Calendar, Shield } from 'lucide-react';
+import { User, Mail, GraduationCap, MapPin, Shield } from 'lucide-react';
 
 interface StudentProfileProps {
     student: {

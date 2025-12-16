@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { SYMPTOMS } from '../../utils/mockData';
-import type { Symptom } from '../../types';
+import { SYMPTOMS } from '@/utils/MockData';
 
 interface SymptomSelectorProps {
     selectedSymptoms: string[];
@@ -30,8 +29,8 @@ export function SymptomSelector({ selectedSymptoms, onSymptomToggle }: SymptomSe
                         key={cat}
                         onClick={() => setFilter(cat)}
                         className={`px-4 py-2 rounded-full transition-all ${filter === cat
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -49,8 +48,8 @@ export function SymptomSelector({ selectedSymptoms, onSymptomToggle }: SymptomSe
                             key={symptom.id}
                             onClick={() => onSymptomToggle(symptom.id)}
                             className={`p-4 rounded-xl border-2 transition-all ${isSelected
-                                    ? 'border-blue-600 bg-blue-50 shadow-md scale-105'
-                                    : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                                ? 'border-blue-600 bg-blue-50 shadow-md scale-105'
+                                : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
                                 }`}
                         >
                             <div className="flex flex-col items-center gap-2">

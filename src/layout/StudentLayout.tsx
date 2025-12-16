@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-export default function ClientLayout() {
+export default function StudentLayout() {
     return (
         <div className="h-full">
             <header className="bg-green-600 p-4 text-white">
