@@ -1,40 +1,94 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardStats } from './DashboardStats';
 import { HotspotMap } from './HotspotMap';
 import { PredictionChart } from './PredictionChart';
 import { BayesianAnalysis } from './BayesianAnalysis';
 import { SuggestedActions } from './SuggestedActions';
 import { ReportsList } from './ReportsList';
-import {
-    MOCK_DASHBOARD_STATS,
-    MOCK_HOTSPOTS,
-    generatePredictionData,
-    MOCK_BAYESIAN,
-    MOCK_ACTIONS,
-    MOCK_REPORTS,
-} from '@/utils/MockData';
-import type { HealthReport, SuggestedAction } from '@/types/index';
+import { api } from '@/services/api';
+import type {
+    HealthReport,
+    SuggestedAction,
+    DashboardStats as DashboardStatsType,
+    HotspotData,
+    PredictionData,
+    BayesianParameter
+} from '@/types/index';
 
 export default function AdminDashboard() {
-    const [reports, setReports] = useState(MOCK_REPORTS);
-    const [actions, setActions] = useState(MOCK_ACTIONS);
-    const predictionData = generatePredictionData();
+    // 1. Consolidated State for Dashboard Data
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState<DashboardStatsType | null>(null);
+    const [hotspots, setHotspots] = useState<HotspotData[]>([]);
+    const [predictions, setPredictions] = useState<PredictionData[]>([]);
+    const [bayesian, setBayesian] = useState<BayesianParameter | null>(null);
 
-    const handleUpdateReportStatus = (reportId: string, status: HealthReport['status']) => {
-        setReports(prev =>
-            prev.map(report =>
-                report.id === reportId ? { ...report, status } : report
-            )
-        );
+    // 2. Mutable State (Items we can update/interact with)
+    const [actions, setActions] = useState<SuggestedAction[]>([]);
+    const [reports, setReports] = useState<HealthReport[]>([]);
+
+    // 3. Fetch All Data on Mount
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                // Fetch Dashboard Analytics & Raw Reports in parallel
+                const [dashboardData, reportsData] = await Promise.all([
+                    api.dashboard.getAllData(),
+                    api.reports.getAll()
+                ]);
+
+                // Update State
+                setStats(dashboardData.stats);
+                setHotspots(dashboardData.hotspots);
+                setPredictions(dashboardData.predictions);
+                setBayesian(dashboardData.bayesian);
+                setActions(dashboardData.actions);
+                setReports(reportsData);
+            } catch (error) {
+                console.error("Failed to load admin dashboard:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    // 4. Handle Report Status Updates (e.g., Mark as Resolved)
+    const handleUpdateReportStatus = async (reportId: string, status: HealthReport['status']) => {
+        // Optimistic Update (Update UI immediately)
+        setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
+
+        try {
+            await api.reports.updateStatus(reportId, status);
+        } catch (error) {
+            console.error("Failed to update report status", error);
+            // Revert on failure (optional)
+        }
     };
 
-    const handleUpdateActionStatus = (actionId: string, status: SuggestedAction['status']) => {
-        setActions(prev =>
-            prev.map(action =>
-                action.id === actionId ? { ...action, status } : action
-            )
-        );
+    // 5. Handle Action Updates (e.g., Start/Complete Action)
+    const handleUpdateActionStatus = async (actionId: string, status: SuggestedAction['status']) => {
+        // Optimistic Update
+        setActions(prev => prev.map(a => a.id === actionId ? { ...a, status } : a));
+
+        try {
+            await api.dashboard.updateAction(actionId, status);
+        } catch (error) {
+            console.error("Failed to update action status", error);
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p className="text-gray-500">Loading live health data...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
@@ -48,23 +102,23 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Stats Overview */}
-                <DashboardStats stats={MOCK_DASHBOARD_STATS} />
+                {stats && <DashboardStats stats={stats} />}
 
                 {/* Main Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Prediction Chart */}
                     <div className="lg:col-span-2">
-                        <PredictionChart data={predictionData} />
+                        <PredictionChart data={predictions} />
                     </div>
 
                     {/* Bayesian Analysis */}
                     <div>
-                        <BayesianAnalysis parameters={MOCK_BAYESIAN} />
+                        {bayesian && <BayesianAnalysis parameters={bayesian} />}
                     </div>
 
                     {/* Hotspot Map */}
                     <div>
-                        <HotspotMap hotspots={MOCK_HOTSPOTS} />
+                        <HotspotMap hotspots={hotspots} />
                     </div>
 
                     {/* Suggested Actions */}
