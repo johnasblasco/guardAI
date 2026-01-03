@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle, Clock, MapPin, User } from 'lucide-react';
+import { MapPin, User } from 'lucide-react';
 import type { HealthReport } from '@/types/index';
 
 interface ReportsListProps {

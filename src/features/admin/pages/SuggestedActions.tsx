@@ -1,4 +1,4 @@
-import { Sparkles, CheckCircle, Clock, AlertTriangle, Droplets, Bell, Eye, XCircle, ArrowRight } from 'lucide-react';
+import { Sparkles, CheckCircle, Clock, AlertTriangle, Droplets, Bell, Eye, XCircle } from 'lucide-react';
 import type { SuggestedAction } from '@/types/index';
 
 interface SuggestedActionsProps {

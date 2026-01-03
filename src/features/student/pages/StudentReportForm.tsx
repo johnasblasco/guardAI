@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, Calendar, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { Send, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { SymptomSelector } from './SymptomSelector';
 import { LocationSelector } from './LocationSelector';
 import { api } from '@/services/api';

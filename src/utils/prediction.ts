@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import type { HealthReport, PredictionData, BayesianParameter } from '../types';
+import type { HealthReport, BayesianParameter } from '../types';
 
 /**
  * Mock TensorFlow.js-based prediction engine for educational demo
@@ -74,7 +74,7 @@ export class HealthPredictionEngine {
 
         // Calculate likelihood based on current reports
         const totalReports = reports.length;
-        const confirmedCases = reports.filter(r => r.confirmedDisease).length;
+        // const confirmedCases = reports.filter(r => r.confirmedDisease).length;
         const severeCases = reports.filter(r => r.severity === 'severe').length;
 
         // Likelihood ratio based on report characteristics
